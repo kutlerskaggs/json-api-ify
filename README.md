@@ -269,7 +269,52 @@ serializer.serialize('users', 'names-only', data, function(err, payload) {
 
 
 ## Relationships
-
+Relationships are easy as well. First, include a relationship map in your type/schema options.
+```javascript
+serializer.define('users', {
+    // ..
+    relationships: {
+        groups: {
+            type: 'groups',
+            include: true,
+            links: {
+                self(resource, options, cb) {
+                    let link = options.baseUrl + '/users/' + resource.id + '/relationships/groups';
+                    cb(null, link);
+                },
+                related(resource, options, cb) {
+                    let link = options.baseUrl + '/users/' + resource.id + '/groups';
+                    cb(null, link);
+                }
+            }
+        }
+    }
+    // ..
+}, callback);
+```
+Next, define the related type.
+```javascript
+serializer.define('groups', {
+    // ..
+    relationships: {
+        users: {
+            type: 'users',
+            include: true,
+            links: {
+                self(resource, options, cb) {
+                    let link = options.baseUrl + '/groups/' + resource.id + '/relationships/users';
+                    cb(null, link);
+                },
+                related(resource, options, cb) {
+                    let link = options.baseUrl + '/groups/' + resource.id + '/users';
+                    cb(null, link);
+                }
+            }
+        }
+    }
+    // ..
+}, callback);
+```
 
 ## API
 ### Constructor Summary
@@ -372,4 +417,25 @@ serializes `data` into a JSON API v1.0 compliant document
 ## ToDo
 - [ ] implement `jsonapi` top-level member
 - [ ] implement `deserialize` method
+- [ ] implement support for unpopulated relationships (an id, or array of ids)
 - [ ] *ADD MORE TESTS!*
+
+
+## Test
+run tests
+```bash
+npm test
+```
+
+
+## Contributing
+1. [Fork it](https://github.com/kutlerskaggs/json-api-ify/fork)
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+
+## License
+Copyright (c) 2016 Chris Ludden.
+Licensed under the [MIT license](LICENSE.md).

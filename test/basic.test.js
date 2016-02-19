@@ -201,7 +201,7 @@ describe('basic tests', function() {
             });
         });
 
-        it('should blacklist the appropriate attributes', function() {
+        it('should include the appropriate attributes', function() {
             payload.data.forEach(function(resource) {
                 expect(resource.attributes).to.contain.all.keys('first', 'last');
                 expect(resource.attributes).to.have.deep.property('phone.mobile');
@@ -292,13 +292,45 @@ describe('basic tests', function() {
             });
         });
 
-        it('should blacklist the appropriate attributes', function() {
+        it('should include the appropriate attributes', function() {
             payload.data.forEach(function(resource) {
                 expect(resource.attributes).to.contain.all.keys('first', 'last');
                 expect(resource.attributes).to.have.deep.property('phone.mobile');
                 expect(resource.attributes).to.not.have.property('email');
                 expect(resource.attributes).to.not.have.deep.property('phone.home');
             });
+        });
+
+        it('each resource should include the correct relationships', function() {
+            let tim = payload.data[0],
+                kanye = payload.data[1];
+            expect(tim).to.have.property('relationships').that.is.an('object').with.property('groups');
+            expect(tim.relationships.groups).to.be.an('object').with.all.keys('links', 'data', 'meta');
+            expect(tim.relationships.groups.data).to.have.lengthOf(2);
+            tim.relationships.groups.data.forEach(function(rel) {
+                expect(rel).to.be.an('object').with.all.keys('id', 'type', 'links', 'meta');
+            });
+            expect(_.map(tim.relationships.groups.data, 'id')).to.eql(['admins', 'users']);
+
+            expect(kanye).to.have.property('relationships').that.is.an('object').with.property('groups');
+            expect(kanye.relationships.groups).to.be.an('object').with.all.keys('links', 'data', 'meta');
+            expect(kanye.relationships.groups.data).to.have.lengthOf(1);
+            kanye.relationships.groups.data.forEach(function(rel) {
+                expect(rel).to.be.an('object').with.all.keys('id', 'type', 'links', 'meta');
+            });
+            expect(_.map(kanye.relationships.groups.data, 'id')).to.eql(['users']);
+        });
+
+        it('each resource should include the correct meta', function() {
+            payload.data.forEach(function(resource) {
+                expect(resource).to.have.property('meta').that.is.an('object').with.keys('test');
+                expect(resource.meta.test).to.equal('test-' + resource.id);
+            });
+        });
+
+        it('should include the correct related resources in the `included` attribute', function() {
+            expect(payload.included).to.be.an('array').with.lengthOf(2);
+            expect(_.map(payload.included, 'id')).to.contain('admins').and.contain('users');
         });
     });
 
@@ -358,6 +390,99 @@ describe('basic tests', function() {
                 expect(resource.attributes).to.not.have.property('email');
                 expect(resource.attributes).to.not.have.deep.property('phone.home');
             });
+        });
+
+        it('each resource should include the correct relationships', function() {
+            payload.data.forEach(function(resource) {
+                expect(resource.relationships).to.eql({});
+            });
+        });
+
+        it('each resource should include the correct meta', function() {
+            payload.data.forEach(function(resource) {
+                expect(resource).to.have.property('meta').that.is.an('object').with.keys('test');
+                expect(resource.meta.test).to.equal('test-' + resource.id);
+            });
+        });
+
+        it('should include the correct related resources in the `included` attribute', function() {
+            expect(payload.included).to.be.an('array').with.lengthOf(0);
+        });
+    });
+
+    context('single document', function() {
+        let dataset2 = {
+            name: 'users',
+            desc: 'site admins',
+            users: [{
+                _id: 1,
+                first: 'tim',
+                last: 'tebow',
+                email: 'ttebow@example.com',
+                phone: {
+                    home: null,
+                    mobile: '+18001234567'
+                }
+            },{
+                _id: 2,
+                first: 'kanye',
+                last: 'west',
+                email: 'kwest@example.com',
+                phone: {
+                    home: null,
+                    mobile: '+18001234567'
+                },
+            }]
+        };
+
+        let error, payload;
+        before(function(done) {
+            serializer.serialize('groups', dataset2, function(e, p) {
+                error = e;
+                payload = p;
+                done(e);
+            });
+        });
+
+        it('should not throw an error', function() {
+            expect(error).to.not.exist;
+        });
+
+        it('shoud return a valid payload', function() {
+            expect(payload).to.be.an('object').and.contain.all.keys('links', 'data', 'included', 'meta');
+        });
+
+        it('should return the correct top level links', function() {
+            expect(payload.links).to.have.property('self', 'https://www.example.com/api/groups');
+        });
+
+        it('should return the correct top level meta', function() {
+            expect(payload.meta).to.have.property('serializationTime').that.is.a('string');
+        });
+
+        it('should include 1 serialized group', function() {
+            expect(payload.data).to.be.an('object')
+                .with.all.keys('id', 'type', 'attributes', 'relationships', 'meta', 'links');
+        });
+
+        it('should include the appropriate attributes', function() {
+            expect(payload.data.attributes).to.have.all.keys('desc');
+        });
+
+        it('each resource should include the correct relationships', function() {
+            expect(payload.data.relationships).to.have.all.keys('users');
+            expect(payload.data.relationships.users).to.have.all.keys('links', 'data', 'meta');
+            expect(payload.data.relationships.users.data).to.be.an('array')
+                .with.lengthOf(2);
+            expect(_.map(payload.data.relationships.users.data, 'id')).to.eql([1, 2]);
+        });
+
+        it('each resource should include the correct meta', function() {
+            expect(payload.data.meta).to.eql({});
+        });
+
+        it('should include the correct related resources in the `included` attribute', function() {
+            expect(payload.included).to.be.an('array').with.lengthOf(2);
         });
     });
 });

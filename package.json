@@ -4,7 +4,7 @@
   "description": "json to json-api compliant payload",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/**/*.test.js --recursive"
   },
   "keywords": [
     "json-api",
@@ -15,6 +15,10 @@
   ],
   "author": "chris ludden",
   "license": "MIT",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/kutlerskaggs/json-api-ify"
+  },
   "dependencies": {
     "async": "^1.5.2",
     "joi": "^8.0.1",
