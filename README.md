@@ -430,6 +430,33 @@ serializes `data` into a JSON API v1.0 compliant document
     whitelist: [],
 }
 ```
+---
+
+#### serializeError(error, [meta], [defaultStatusCode]) => {object} document
+serializes any `error` into a JSON API v1.0 compliant error document. error can be anything, this method will attempt to intelligently construct a valid JSON API error object. the return document will contain a top level `meta` member with a `status` attribute that represents the status code with the greatest frequency.
+
+###### Arguments
+| Param | Type | Description |
+| :---: | :---: | :--- |
+| `error` | `{*}` | the `error` data to serialize |
+| `[meta]` | `{Object}` | any top level meta information |
+| `[defaultStatusCode]` | `{Number|String}` | a default status code to apply to any error object(s) without a specified `status` |
+
+##### Example
+```javascript
+function(req, res) {
+    async.waterfall([
+        // ..
+    ], function(err, payload) {
+        let status = 200;
+        if (err) {
+            payload = serializer.serializeError(err);
+            status = payload.meta.status;
+        }
+        res.json(status, payload);
+    });
+}
+```
 
 
 ## To Do
