@@ -2,10 +2,11 @@
 a `node.js` framework agnostic library for serializing your data to [JSON API v1.0](http://jsonapi.org/) compliant document, inspired by [jsonapi-serializer](https://github.com/SeyZ/jsonapi-serializer).
 
 
-## Install
+## Installing
 ```bash
 npm install --save json-api-ify
 ```
+
 
 ## Getting Started
 Create a new *reusable* serializer.
@@ -207,7 +208,7 @@ Response body:
 
 
 ## Schemas
-A type can multiple serializing *schemas*, which you can create by calling `define` with a schema name. Any schema options provided will augment the *default* schema.
+A type can have multiple serialization *schemas*, which you can create by calling `define` with a schema name. Any schema options provided will augment the *default* schema.
 ```javascript
 serializer.define('users', 'names-only', {
     whitelist: [
@@ -290,7 +291,7 @@ serializer.define('users', {
     // ..
 }, callback);
 ```
-Next, define the related type.
+Lastly, define the related type.
 ```javascript
 serializer.define('groups', {
     // ..
@@ -314,6 +315,7 @@ serializer.define('groups', {
     // ..
 }, callback);
 ```
+
 
 ## API
 ### Constructor Summary
@@ -339,6 +341,7 @@ defines a type serialization schema
 | `options` | `{Object}` | schema options |
 | `callback(err, payload)` | `{Function}` | a function that receives any definition error. |
 ---
+
 
 #### serialize(type, [schema], data, [options], callback)
 serializes `data` into a JSON API v1.0 compliant document
@@ -429,14 +432,14 @@ serializes `data` into a JSON API v1.0 compliant document
 ```
 
 
-## ToDo
+## To Do
 - [ ] implement `jsonapi` top-level member
 - [ ] implement `deserialize` method
 - [x] implement support for unpopulated relationships (an id, or array of ids)
 - [ ] *ADD MORE TESTS!*
 
 
-## Test
+## Testing
 run tests
 ```bash
 npm test
@@ -452,5 +455,5 @@ npm test
 
 
 ## License
-Copyright (c) 2016 Chris Ludden.
+Copyright (c) 2016 Chris Ludden.  
 Licensed under the [MIT license](LICENSE.md).
