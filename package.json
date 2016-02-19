@@ -1,6 +1,6 @@
 {
   "name": "json-api-ify",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "json to json-api compliant payload",
   "main": "index.js",
   "scripts": {
@@ -16,8 +16,8 @@
   "author": "chris ludden",
   "license": "MIT",
   "repository": {
-      "type": "git",
-      "url": "https://github.com/kutlerskaggs/json-api-ify"
+    "type": "git",
+    "url": "https://github.com/kutlerskaggs/json-api-ify"
   },
   "dependencies": {
     "async": "^1.5.2",
