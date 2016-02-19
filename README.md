@@ -1,8 +1,6 @@
 # json-api-ify
-a `node.js v5+` framework agnostic library for serializing your data to [JSON API v1.0](http://jsonapi.org/) compliant payloads, inspired by [jsonapi-serializer](https://github.com/SeyZ/jsonapi-serializer).
+a `node.js` framework agnostic library for serializing your data to [JSON API v1.0](http://jsonapi.org/) compliant document, inspired by [jsonapi-serializer](https://github.com/SeyZ/jsonapi-serializer).
 
-
-**NOTE** *THIS IS STILL A WORK IN PROGRESS! BUT FEEL FREE TO CONTRIBUTE!*
 
 ## Install
 ```bash
@@ -300,6 +298,7 @@ serializer.define('groups', {
         users: {
             type: 'users',
             include: true,
+            schema: 'names-only',
             links: {
                 self(resource, options, cb) {
                     let link = options.baseUrl + '/groups/' + resource.id + '/relationships/users';
@@ -325,9 +324,22 @@ constructs a new serializer instance
 | Param | Type | Description |
 | :---: | :---: | :--- |
 | `[options]` | `{Object}` | global options. see `serialize()` options for more detail |
+---
 
 
 ### Method Summary
+#### define(type, [schema], options, callback)
+defines a type serialization schema
+
+###### Arguments
+| Param | Type | Description |
+| :---: | :---: | :--- |
+| `type` | `{String}` | the `resource` type |
+| `[schema]` | `{String}` | the serialization `schema` to use. defaults to `default` |
+| `options` | `{Object}` | schema options |
+| `callback(err, payload)` | `{Function}` | a function that receives any definition error. |
+---
+
 #### serialize(type, [schema], data, [options], callback)
 serializes `data` into a JSON API v1.0 compliant document
 
@@ -381,6 +393,9 @@ serializes `data` into a JSON API v1.0 compliant document
             // whether or not to include the nested resource(s)
             include: true,
 
+            // optionally specify a non-default schema to use
+            schema: 'my-schema',
+
             // a map of links to define on the relationship object
             links: {
                 self(resource, options, cb) {
@@ -417,7 +432,7 @@ serializes `data` into a JSON API v1.0 compliant document
 ## ToDo
 - [ ] implement `jsonapi` top-level member
 - [ ] implement `deserialize` method
-- [ ] implement support for unpopulated relationships (an id, or array of ids)
+- [x] implement support for unpopulated relationships (an id, or array of ids)
 - [ ] *ADD MORE TESTS!*
 
 

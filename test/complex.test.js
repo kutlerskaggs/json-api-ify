@@ -127,7 +127,7 @@ describe('complex tests', function() {
                                 },
                                 {
                                     _id: '52735730e16632ba1eee62ce',
-                                    title: 'Tesla, SpaceX, and the Quest for a Fantastic Future',
+                                    title: 'Random book',
                                     isbn: '978-9384932991'
                                 }
                             ]
@@ -152,7 +152,6 @@ describe('complex tests', function() {
             serializer.serialize('libraries', dataset, function(e, p) {
                 error = e;
                 payload = p;
-                console.log(JSON.stringify(e), JSON.stringify(p));
                 done(e);
             });
         });
