@@ -1,5 +1,8 @@
 # json-api-ify
-a `node.js` framework agnostic library for serializing your data to [JSON API v1.0](http://jsonapi.org/) compliant document, inspired by [jsonapi-serializer](https://github.com/SeyZ/jsonapi-serializer).
+[![Build Status](https://travis-ci.org/kutlerskaggs/json-api-ify.svg?branch=master)](https://travis-ci.org/kutlerskaggs/json-api-ify)
+
+
+a `node.js` library for serializing your data to [JSON API v1.0](http://jsonapi.org/) compliant documents, inspired by [jsonapi-serializer](https://github.com/SeyZ/jsonapi-serializer). this library makes no assumptions regarding your choice of ORM/ODM, or the structure of your data. simply define your types and how their related and let this library do the heavy lifting.
 
 
 ## Installing
@@ -22,7 +25,7 @@ let serializer = new Serializer({
 ```
 
 
-Define a type.
+Define a type. *(read more about options below)*
 ```javascript
 serializer.define('users', {
     id: '_id',
