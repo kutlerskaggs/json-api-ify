@@ -88,7 +88,6 @@ let data = [new User({
         country: 'USA'
     }
 }), new User({
-    id: '5490143e69e49d0c8f9fc6bc',
     first: 'Kanye',
     last: 'West',
     email: 'kwest@example.com',
@@ -445,7 +444,7 @@ serializes any `error` into a JSON API v1.0 compliant error document. error can 
 | `[meta]` | `{Object}` | any top level meta information |
 | `[defaultStatusCode]` | `{Number|String}` | a default status code to apply to any error object(s) without a specified `status` |
 
-##### Example
+###### Example
 ```javascript
 function(req, res) {
     async.waterfall([
@@ -462,10 +461,30 @@ function(req, res) {
 ```
 
 
+## Events
+The `serializer` inherits from node's `EventEmitter`. Below is a summary of the events exposed by this library.
+
+#### error
+The global error event.
+
+###### Arguments
+| Param | Type | Description |
+| :---: | :---: | :--- |
+| `error` | `{Object}` | the error object |
+
+###### Example
+```javascript
+serializer.on('error', function(error) {
+    bugsnag.notify(error);
+});
+```
+
+
 ## To Do
 - [ ] implement `jsonapi` top-level member
 - [ ] implement `deserialize` method
 - [x] implement support for unpopulated relationships (an id, or array of ids)
+- [ ] implement *templates*
 - [ ] *ADD MORE TESTS!*
 
 
