@@ -85,7 +85,6 @@ let data = [new User({
         country: 'USA'
     }
 }), new User({
-    id: '5490143e69e49d0c8f9fc6bc',
     first: 'Kanye',
     last: 'West',
     email: 'kwest@example.com',
@@ -463,6 +462,7 @@ function(req, res) {
 - [ ] implement `jsonapi` top-level member
 - [ ] implement `deserialize` method
 - [x] implement support for unpopulated relationships (an id, or array of ids)
+- [ ] implement *templates*
 - [ ] *ADD MORE TESTS!*
 
 
