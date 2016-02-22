@@ -441,7 +441,7 @@ serializes any `error` into a JSON API v1.0 compliant error document. error can 
 | `[meta]` | `{Object}` | any top level meta information |
 | `[defaultStatusCode]` | `{Number|String}` | a default status code to apply to any error object(s) without a specified `status` |
 
-##### Example
+###### Example
 ```javascript
 function(req, res) {
     async.waterfall([
@@ -455,6 +455,25 @@ function(req, res) {
         res.json(status, payload);
     });
 }
+```
+
+
+## Events
+The `serializer` inherits from node's `EventEmitter`. Below is a summary of the events exposed by this library.
+
+#### error
+The global error event.
+
+###### Arguments
+| Param | Type | Description |
+| :---: | :---: | :--- |
+| `error` | `{Object}` | the error object |
+
+###### Example
+```javascript
+serializer.on('error', function(error) {
+    bugsnag.notify(error);
+});
 ```
 
 
