@@ -1,6 +1,6 @@
 {
   "name": "json-api-ify",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "json to json-api compliant payload",
   "main": "index.js",
   "scripts": {
