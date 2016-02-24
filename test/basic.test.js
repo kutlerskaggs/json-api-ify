@@ -4,7 +4,8 @@ var async = require('async'),
     chai = require('chai'),
     Serializer = require('../index'),
     queryString = require('query-string'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    ObjectID = require("bson-objectid");
 
 let expect = chai.expect;
 
@@ -483,6 +484,45 @@ describe('basic tests', function() {
 
         it('should include the correct related resources in the `included` attribute', function() {
             expect(payload.included).to.be.an('array').with.lengthOf(2);
+        });
+    });
+
+    context('unpopulated relationships with exotic ids', function() {
+
+        let userWithPlainObjectRelationship = {
+            _id: 1,
+            first: 'tim',
+            last: 'tebow',
+            group: new ObjectID('56cd74546033f8d420bc1c11'),
+            groups: [new ObjectID('56cd74546033f8d420bc1c12'), new ObjectID('56cd74546033f8d420bc1c13')]
+        };
+
+        let error, payload;
+        before(function(done) {
+            serializer.serialize('users', userWithPlainObjectRelationship, {
+              id: '_id',
+              relationships: {
+                group : {
+                  type: 'groups',
+                },
+                groups : {
+                  type: 'groups',
+                }
+              }
+            }, function(e, p) {
+                error = e;
+                payload = p;
+                done(e);
+            });
+        });
+
+        it('should not throw an error', function() {
+            expect(error).to.not.exist;
+        });
+
+        it('should return the correct relationships data ids', function() {
+            expect(payload.data.relationships.group.data.id).to.eql(ObjectID('56cd74546033f8d420bc1c11'));
+            expect(_.map(payload.data.relationships.groups.data, 'id')).to.eql([ObjectID('56cd74546033f8d420bc1c12'), ObjectID('56cd74546033f8d420bc1c13')]);
         });
     });
 });
