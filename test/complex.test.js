@@ -3,7 +3,8 @@
 
 var async = require('async'),
     chai = require('chai'),
-    Serializer = require('../index');
+    Serializer = require('../index'),
+    _ = require('lodash');
 
 let expect = chai.expect,
     serializer = new Serializer({
@@ -106,7 +107,14 @@ describe('complex tests', function() {
                         libraries: [
                             '54735750e16638ba1eee59cb',
                             '54735750e16638ba1eee59dd',
-                            '54735750e16638ba1eee59ac'
+                            {
+                                _id: '54735750e16638ba1eee59ac',
+                                name: 'Denver Public Library',
+                                address: {
+                                    street: '1001 S. Broadway',
+                                    state: 36
+                                }
+                            }
                         ]
                     }
                 },
@@ -126,9 +134,7 @@ describe('complex tests', function() {
                                     isbn: '978-0062301239'
                                 },
                                 {
-                                    _id: '52735730e16632ba1eee62ce',
-                                    title: 'Random book',
-                                    isbn: '978-9384932991'
+                                    _id: '52735730e16632ba1eee62ce'
                                 }
                             ]
                         }
@@ -158,6 +164,17 @@ describe('complex tests', function() {
 
         it('should not throw an error', function() {
             expect(error).to.not.exist;
+        });
+
+        it('should include the correct related resources', function() {
+            let types = _(payload.included).groupBy('type').mapValues(function(docs) {
+                return docs.length;
+            }).value();
+            expect(types).to.have.property('books', 2);
+            expect(types).to.have.property('libraries', 1);
+            expect(types).to.have.property('authors', 2);
+            expect(types).to.have.property('cities', 1);
+            expect(types).to.have.property('states', 1);
         });
     });
 });
