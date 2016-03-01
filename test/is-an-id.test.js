@@ -23,10 +23,10 @@ describe('mongoose', function() {
     before(function(done) {
         serializer = new Serializer();
         serializer.define('users', {
-            id: '_id',
+            id: 'id',
             processResource(resource, cb) {
                 if (_.isFunction(resource.toObject)) {
-                    resource = resource.toObject();
+                    resource = resource.toObject({getters: true});
                 }
                 cb(null, resource);
             },
@@ -47,6 +47,7 @@ describe('mongoose', function() {
 
     it('should correctly serialize the data', function(done) {
         serializer.serialize('users', users, function(err, payload) {
+            console.log(JSON.stringify(payload));
             expect(err).to.not.exist;
             expect(payload).to.contain.all.keys('data', 'links', 'included', 'meta');
             expect(payload.data).to.be.an('array').with.lengthOf(2);
@@ -55,6 +56,7 @@ describe('mongoose', function() {
                 expect(resource).to.have.property('attributes').that.is.an('object');
                 expect(resource.attributes).to.contain.all.keys('first', 'last');
             });
+            done(err);
         });
     });
 });
