@@ -47,7 +47,6 @@ describe('mongoose', function() {
 
     it('should correctly serialize the data', function(done) {
         serializer.serialize('users', users, function(err, payload) {
-            console.log(JSON.stringify(payload));
             expect(err).to.not.exist;
             expect(payload).to.contain.all.keys('data', 'links', 'included', 'meta');
             expect(payload.data).to.be.an('array').with.lengthOf(2);
