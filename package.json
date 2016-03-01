@@ -31,6 +31,7 @@
     "grunt-mocha-istanbul": "^3.0.1",
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5",
+    "mongoose": "^4.4.5",
     "query-string": "^3.0.0",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0"
