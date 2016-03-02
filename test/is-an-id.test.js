@@ -3,6 +3,7 @@
 var async = require('async'),
     expect = require('chai').expect,
     mongoose = require('mongoose'),
+    ObjectId = require('mongodb').ObjectId,
     Serializer = require('../index'),
     _ = require('lodash');
 
@@ -11,7 +12,11 @@ describe('mongoose', function() {
         users = [
             new User({
                 first: 'donald',
-                last: 'trump'
+                last: 'trump',
+                comments: [
+                    new ObjectId(),
+                    new ObjectId()
+                ]
             }),
             new User({
                 first: 'bernie',
@@ -22,27 +27,68 @@ describe('mongoose', function() {
 
     before(function(done) {
         serializer = new Serializer();
-        serializer.define('users', {
-            id: 'id',
-            processResource(resource, cb) {
-                if (_.isFunction(resource.toObject)) {
-                    resource = resource.toObject({getters: true});
-                }
-                cb(null, resource);
+        serializer.on('error', function(err) {
+            console.error(err);
+        });
+        async.parallel({
+            users: function(fn) {
+                serializer.define('users', {
+                    processResource(resource, cb) {
+                        if (_.isFunction(resource.toObject)) {
+                            resource = resource.toObject({getters: true});
+                        }
+                        cb(null, resource);
+                    },
+                    links: {
+                        self(resource, options, cb) {
+                            let link = 'https://www.example.com/api/users/' + resource.id;
+                            cb(null, link);
+                        }
+                    },
+                    relationships: {
+                        comments: {
+                            type: 'comments',
+                            include: true
+                        }
+                    },
+                    topLevelLinks: {
+                        self(options, cb) {
+                            let link = 'https://www.example.com/api/users';
+                            cb(null, link);
+                        }
+                    }
+                }, fn);
             },
-            links: {
-                self(resource, options, cb) {
-                    let link = 'https://www.example.com/api/users/' + resource.id;
-                    cb(null, link);
-                }
-            },
-            topLevelLinks: {
-                self(options, cb) {
-                    let link = 'https://www.example.com/api/users';
-                    cb(null, link);
-                }
+            comments: function(fn) {
+                serializer.define('comments', {
+                    processResource(resource, cb) {
+                        if (_.isFunction(resource.toObject)) {
+                            resource = resource.toObject({getters: true});
+                        }
+                        cb(null, resource);
+                    },
+                    links: {
+                        self(resource, options, cb) {
+                            let link = 'https://www.example.com/api/comments/' + resource.id;
+                            cb(null, link);
+                        }
+                    },
+                    relationships: {
+                        author: {
+                            type: 'comments',
+                            include: true
+                        }
+                    },
+                    topLevelLinks: {
+                        self(options, cb) {
+                            let link = 'https://www.example.com/api/comments';
+                            cb(null, link);
+                        }
+                    }
+                }, fn);
             }
         }, done);
+
     });
 
     it('should correctly serialize the data', function(done) {
