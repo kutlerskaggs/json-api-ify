@@ -145,6 +145,206 @@ describe('deserialize', function() {
                         });
                     }
                 ], fn);
+            },
+
+            function(fn) {
+                async.waterfall([
+                    function(_fn) {
+                        let serializer = new Serializer();
+                        serializer.define('people', {
+                            id: '_id'
+                        }, function(err) {
+                            if (err) {
+                                return _fn(err);
+                            }
+                            _fn(null, serializer);
+                        });
+                    },
+
+                    function(serializer, _fn) {
+                        let payload = {
+                            data: {
+                                type: 'people',
+                                id: '12'
+                            }
+                        };
+                        serializer.deserialize(payload, function(err, data) {
+                            expect(err).to.not.exist;
+                            expect(data).to.be.an('object');
+                            expect(data).to.have.property('people', '12');
+                            _fn(err);
+                        });
+                    }
+                ], fn);
+            },
+
+            function(fn) {
+                async.waterfall([
+                    function(_fn) {
+                        let serializer = new Serializer();
+                        serializer.define('people', {
+                            id: '_id'
+                        }, function(err) {
+                            if (err) {
+                                return _fn(err);
+                            }
+                            _fn(null, serializer);
+                        });
+                    },
+
+                    function(serializer, _fn) {
+                        let payload = {
+                            data: null
+                        };
+                        serializer.deserialize(payload, function(err, data) {
+                            expect(err).to.not.exist;
+                            expect(data).to.be.an('object');
+                            let keys = Object.keys(data);
+                            expect(keys).to.have.lengthOf(0);
+                            _fn(err);
+                        });
+                    }
+                ], fn);
+            },
+
+            function(fn) {
+                async.waterfall([
+                    function(_fn) {
+                        let serializer = new Serializer();
+                        serializer.define('people', {
+                            id: '_id'
+                        }, function(err) {
+                            if (err) {
+                                return _fn(err);
+                            }
+                            _fn(null, serializer);
+                        });
+                    },
+
+                    function(serializer, _fn) {
+                        let payload = {
+                            data: []
+                        };
+                        serializer.deserialize(payload, function(err, data) {
+                            expect(err).to.not.exist;
+                            expect(data).to.be.an('object');
+                            let keys = Object.keys(data);
+                            expect(keys).to.have.lengthOf(0);
+                            _fn(err);
+                        });
+                    }
+                ], fn);
+            },
+
+            function(fn) {
+                async.waterfall([
+                    function(_fn) {
+                        let serializer = new Serializer();
+                        serializer.define('people', {
+                            id: '_id'
+                        }, function(err) {
+                            if (err) {
+                                return _fn(err);
+                            }
+                            _fn(null, serializer);
+                        });
+                    },
+
+                    function(serializer, _fn) {
+                        let payload = {
+                            data: [
+                                {type: 'people', id: '2'},
+                                {type: 'people', id: '3'}
+                            ]
+                        };
+                        serializer.deserialize(payload, function(err, data) {
+                            expect(err).to.not.exist;
+                            expect(data).to.be.an('object');
+                            expect(data).to.have.property('people').that.is.an('array');
+                            expect(data.people).to.eql(['2', '3']);
+                            _fn(err);
+                        });
+                    }
+                ], fn);
+            }
+        ], done);
+    });
+
+    it('should error when appropriate', function(done) {
+        async.parallel([
+            function(fn) {
+                async.waterfall([
+                    function(_fn) {
+                        let serializer = new Serializer();
+                        async.parallel([
+                            function(__fn) {
+                                serializer.define('user', {}, __fn);
+                            },
+                            function(__fn) {
+                                serializer.define('group', {}, __fn);
+                            }
+                        ], function(err) {
+                            if (err) {
+                                return _fn(err);
+                            }
+                            _fn(null, serializer);
+                        });
+                    },
+
+                    function(serializer, _fn) {
+                        let badPayload = {
+                            data: {
+                                attributes: {
+                                    first: 'bob',
+                                    last: 'smith'
+                                },
+                                relationships: {
+                                    groups: {
+                                        data: [{id: 1}]
+                                    }
+                                }
+                            }
+                        };
+                        serializer.deserialize(badPayload, function(err) {
+                            expect(err).to.exist;
+                            _fn(null, serializer);
+                        });
+                    },
+
+                    function(serializer, _fn) {
+                        let badPayload = {
+                            meta: {
+                                something: 'test',
+                                somethingElse: 'test'
+                            }
+                        };
+                        serializer.deserialize(badPayload, function(err) {
+                            expect(err).to.exist;
+                            _fn(null, serializer);
+                        });
+                    },
+
+                    function(serializer, _fn) {
+                        let badPayload = {
+                            data: {
+                                type: 'user',
+                                attributes: {
+                                    first: 'bob',
+                                    last: 'smith'
+                                },
+                                relationships: {
+                                    groups: {
+                                        data: [{id: 1}]
+                                    }
+                                }
+                            }
+                        };
+                        serializer.deserialize(badPayload, function(err) {
+                            expect(err).to.exist;
+                            _fn(null, serializer);
+                        });
+                    }
+                ], fn);
             }
         ], done);
     });
