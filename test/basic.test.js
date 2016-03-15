@@ -2,6 +2,7 @@
 
 var async = require('async'),
     chai = require('chai'),
+    mongoose = require('mongoose'),
     Serializer = require('../index'),
     queryString = require('query-string'),
     _ = require('lodash'),
@@ -43,7 +44,19 @@ describe('basic tests', function() {
 
     let serializer = new Serializer({
         baseUrl: 'https://www.example.com',
-        includeSerializationTime: true
+        includeSerializationTime: true,
+        processResource(resource) {
+            if (typeof resource.toObject === 'function') {
+                resource = resource.toObject();
+            } else if (resource instanceof mongoose.Types.ObjectId) {
+                resource = resource.toString();
+            }
+            return resource;
+        }
+    });
+
+    serializer.on('error', function(err) {
+        console.error(err);
     });
 
     // configure serializer
@@ -488,21 +501,35 @@ describe('basic tests', function() {
     });
 
     context('unpopulated relationships with exotic ids', function() {
-
-        let userWithPlainObjectRelationship = {
-            _id: 1,
-            first: 'tim',
-            last: 'tebow',
-            group: new ObjectID('56cd74546033f8d420bc1c11'),
-            groups: [new ObjectID('56cd74546033f8d420bc1c12'), new ObjectID('56cd74546033f8d420bc1c13')]
-        };
-
         let error, payload;
         before(function(done) {
-            serializer.on('error', function(err) {
-                console.error(err);
+            var mongoose = require('mongoose'),
+                userSchema = new mongoose.Schema({
+                    first: String,
+                    last: String,
+                    group: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: 'group'
+                    },
+                    groups: [{
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: 'group'
+                    }]
+                }),
+                User = mongoose.model('user', userSchema),
+                groupSchema = new mongoose.Schema({
+                    name: String
+                }),
+                Group = mongoose.model('group', groupSchema);
+
+            let user = new User({
+                first: 'tim',
+                last: 'tebow',
+                group: new ObjectID('56cd74546033f8d420bc1c11'),
+                groups: [new ObjectID('56cd74546033f8d420bc1c12'), new ObjectID('56cd74546033f8d420bc1c13')]
             });
-            serializer.serialize('users', userWithPlainObjectRelationship, {
+
+            serializer.serialize('users', user, {
               id: '_id',
               relationships: {
                 group : {
@@ -524,8 +551,8 @@ describe('basic tests', function() {
         });
 
         it('should return the correct relationships data ids', function() {
-            expect(payload.data.relationships.group.data.id).to.eql(new ObjectID('56cd74546033f8d420bc1c11'));
-            expect(_.map(payload.data.relationships.groups.data, 'id')).to.eql([new ObjectID('56cd74546033f8d420bc1c12'), new ObjectID('56cd74546033f8d420bc1c13')]);
+            expect(payload.data.relationships.group.data.id).to.eql('56cd74546033f8d420bc1c11');
+            expect(_.map(payload.data.relationships.groups.data, 'id')).to.eql(['56cd74546033f8d420bc1c12', '56cd74546033f8d420bc1c13']);
         });
     });
 });
