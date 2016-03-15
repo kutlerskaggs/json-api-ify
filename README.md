@@ -451,11 +451,15 @@ serializes `data` into a JSON API v1.0 compliant document
     },
 
     // preprocess your resources
-    // all resources must be plain objects, otherwise they will be considered
-    // as unpopulated relationship ids
+    // all resources must be objects, otherwise they're assumed to be
+    // unpopulated ids. NOTE!! If you're working with mongoose models,
+    // unpopulated ids can be objects, so you will need to convert them
+    // to strings
     processResource(resource, /* cb */) {
         if (typeof resource.toJSON === 'function') {
             resource = resource.toJSON();
+        } else if (resource instanceof mongoose.Types.ObjectId) {
+            resource = resource.toString();
         }
         return resource;
     },
