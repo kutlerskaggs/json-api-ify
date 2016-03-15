@@ -319,6 +319,58 @@ serializer.define('groups', {
 ```
 
 
+## Deserialize
+extract the data from a payload in a slightly more usable fashion
+```javascript
+let payload = {
+    data: {
+        type: 'user',
+        attributes: {
+            first: 'a$ap',
+            last: 'ferg',
+            email: 'aferg@example.com',
+            phone: {
+                home: '1-111-111-1111'
+            }
+        },
+        relationships: {
+            groups: {
+                data: [{
+                    type: 'group',
+                    id: '56cd74546033f8d420bc1c11'
+                },{
+                    type: 'group',
+                    id: '56cd74546033f8d420bc1c12'
+                }]
+            }
+        }
+    }
+};
+serializer.deserialize(payload, function(err, data) { /* .. */ });
+```
+here, data would look like:
+```json
+{
+    "user": {
+        "first": "a$ap",
+        "last": "ferg",
+        "email": "aferg@example.com",
+        "phone": {
+            "home": "1-111-111-1111"
+        },
+        "groups": [
+            "56cd74546033f8d420bc1c11",
+            "56cd74546033f8d420bc1c12"
+        ]
+    },
+    "groups": [
+        "56cd74546033f8d420bc1c11",
+        "56cd74546033f8d420bc1c12"
+    ]
+}
+```
+
+
 ## API
 ### Constructor Summary
 #### Serializer([options])
@@ -341,7 +393,18 @@ defines a type serialization schema
 | `type` | `{String}` | the `resource` type |
 | `[schema]` | `{String}` | the serialization `schema` to use. defaults to `default` |
 | `options` | `{Object}` | schema options |
-| `callback(err, payload)` | `{Function}` | a function that receives any definition error. |
+| `callback(err)` | `{Function}` | a function that receives any definition error. |
+---
+
+
+#### deserialize(payload, callback)
+deserializes the *data* attribute of the payload
+
+###### Arguments
+| Param | Type | Description |
+| :---: | :---: | :--- |
+| `payload` | `{Object}` | a valid JSON API payload |
+| `callback(err, data)` | `{Function}` | a function that receives any deserialization error and the extracted data. |
 ---
 
 
@@ -385,6 +448,20 @@ serializes `data` into a JSON API v1.0 compliant document
             // a callback that should pass any error and the meta value
             cb(null, meta);
         }
+    },
+
+    // preprocess your resources
+    // all resources must be objects, otherwise they're assumed to be
+    // unpopulated ids. NOTE!! If you're working with mongoose models,
+    // unpopulated ids can be objects, so you will need to convert them
+    // to strings
+    processResource(resource, /* cb */) {
+        if (typeof resource.toJSON === 'function') {
+            resource = resource.toJSON();
+        } else if (resource instanceof mongoose.Types.ObjectId) {
+            resource = resource.toString();
+        }
+        return resource;
     },
 
     // relationship configuration

@@ -1,6 +1,6 @@
 {
   "name": "json-api-ify",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "json to json-api compliant payload",
   "main": "index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5",
     "mongodb": "^2.1.7",
-    "mongoose": "^4.4.5",
+    "mongoose": "^4.4.7",
     "query-string": "^3.0.0",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0"
