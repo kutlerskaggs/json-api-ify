@@ -125,7 +125,6 @@ describe('deserialize', function() {
                             }]
                         };
                         serializer.deserialize(payload, function(err, data) {
-                            console.log(JSON.stringify(data));
                             expect(err).to.not.exist;
                             expect(data).to.be.an('object');
                             expect(data).to.have.property('photos').that.is.an('array');

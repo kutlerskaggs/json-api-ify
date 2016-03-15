@@ -387,6 +387,16 @@ serializes `data` into a JSON API v1.0 compliant document
         }
     },
 
+    // preprocess your resources
+    // all resources must be plain objects, otherwise they will be considered
+    // as unpopulated relationship ids
+    processResource(resource, /* cb */) {
+        if (typeof resource.toJSON === 'function') {
+            resource = resource.toJSON();
+        }
+        return resource;
+    },
+
     // relationship configuration
     relationships: {
         // each key represents a resource path that points to a

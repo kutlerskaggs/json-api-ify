@@ -499,6 +499,9 @@ describe('basic tests', function() {
 
         let error, payload;
         before(function(done) {
+            serializer.on('error', function(err) {
+                console.error(err);
+            });
             serializer.serialize('users', userWithPlainObjectRelationship, {
               id: '_id',
               relationships: {
@@ -521,8 +524,8 @@ describe('basic tests', function() {
         });
 
         it('should return the correct relationships data ids', function() {
-            expect(payload.data.relationships.group.data.id).to.eql(ObjectID('56cd74546033f8d420bc1c11'));
-            expect(_.map(payload.data.relationships.groups.data, 'id')).to.eql([ObjectID('56cd74546033f8d420bc1c12'), ObjectID('56cd74546033f8d420bc1c13')]);
+            expect(payload.data.relationships.group.data.id).to.eql(new ObjectID('56cd74546033f8d420bc1c11'));
+            expect(_.map(payload.data.relationships.groups.data, 'id')).to.eql([new ObjectID('56cd74546033f8d420bc1c12'), new ObjectID('56cd74546033f8d420bc1c13')]);
         });
     });
 });
