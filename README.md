@@ -358,15 +358,17 @@ here, data would look like:
         "phone": {
             "home": "1-111-111-1111"
         },
-        "groups": [
-            "56cd74546033f8d420bc1c11",
-            "56cd74546033f8d420bc1c12"
-        ]
+        "groups": [{
+            "_id": "56cd74546033f8d420bc1c11"
+        },{
+            "_id": "56cd74546033f8d420bc1c12"
+        }]
     },
-    "groups": [
-        "56cd74546033f8d420bc1c11",
-        "56cd74546033f8d420bc1c12"
-    ]
+    "groups": [{
+        "_id": "56cd74546033f8d420bc1c11"
+    },{
+        "_id": "56cd74546033f8d420bc1c12"
+    }]
 }
 ```
 

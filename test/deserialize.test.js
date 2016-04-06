@@ -1,8 +1,9 @@
 'use strict';
 
-var async = require('async'),
-    expect = require('chai').expect,
-    Serializer = require('../index');
+const async = require('async');
+const expect = require('chai').expect;
+const Serializer = require('../index');
+const _ = require('lodash');
 
 describe('deserialize', function() {
     it('should deserialize the payload successfully', function(done) {
@@ -52,9 +53,9 @@ describe('deserialize', function() {
                             expect(data).to.be.an('object');
                             expect(data).to.have.property('photos').that.is.an('object');
                             expect(data.photos).to.have.all.keys('title', 'src', 'photographer');
-                            expect(data.photos.photographer).to.equal('9');
+                            expect(data.photos.photographer).to.be.an('object').with.property('_id', '9');
                             expect(data).to.have.property('people').that.is.an('array');
-                            expect(data.people).to.eql(['9']);
+                            expect(data.people[0]).to.have.property('_id', '9');
                             _fn(err);
                         });
                     }
@@ -129,17 +130,19 @@ describe('deserialize', function() {
                             expect(data).to.be.an('object');
                             expect(data).to.have.property('photos').that.is.an('array');
                             expect(data.photos[0]).to.have.all.keys('title', 'src', 'photographer');
-                            expect(data.photos[0]).to.have.property('photographer', '9');
+                            expect(data.photos[0]).to.have.property('photographer').that.is.an('object').with.property('_id', '9');
                             expect(data.photos[0]).to.not.have.property('likes');
                             expect(data.photos[1]).to.have.all.keys('title', 'src', 'photographer', 'likes');
-                            expect(data.photos[1]).to.have.property('photographer', '23');
+                            expect(data.photos[1]).to.have.property('photographer').that.is.an('object').with.property('_id', '23');
                             expect(data.photos[1]).to.have.property('likes').that.is.an('array').with.lengthOf(2);
+                            let likes = _.map(data.photos[1].likes, '_id');
                             ['9', '43'].forEach(function(id) {
-                                expect(data.photos[1].likes).to.contain(id);
+                                expect(likes).to.contain(id);
                             });
                             expect(data).to.have.property('people').that.is.an('array').with.lengthOf(3);
+                            let people = _.map(data.people, '_id');
                             ['9', '23', '43'].forEach(function(id) {
-                                expect(data.people).to.contain(id);
+                                expect(people).to.contain(id);
                             });
                             _fn(err);
                         });
@@ -345,6 +348,53 @@ describe('deserialize', function() {
                         });
                     }
                 ], fn);
+            }
+        ], done);
+    });
+
+    it('should deserialize whole relationships', function(done) {
+        let serializer = new Serializer();
+        async.waterfall([
+            function(fn) {
+                let payload = {
+                    data: {
+                        type: 'email',
+                        attributes: {
+                            from_email: 'noreply@example.com',
+                            from_name: 'Joe Bob',
+                            subject: 'Test Email',
+                            template_name: 'basic'
+                        },
+                        relationships: {
+                            recipients: {
+                                data: [{
+                                    type: 'to',
+                                    attributes: {
+                                        email: 'sam@example.com',
+                                        first: 'Sam'
+                                    }
+                                }, {
+                                    type: 'to',
+                                    attributes: {
+                                        email: 'sue@example.com',
+                                        first: 'Sue'
+                                    }
+                                }, {
+                                    type: 'cc',
+                                    attributes: {
+                                        email: 'william@example.com',
+                                        first: 'Bill'
+                                    }
+                                }]
+                            }
+                        }
+                    }
+                };
+                serializer.deserialize(payload, function(err, data) {
+                    expect(err).to.not.exist;
+                    expect(data).to.have.all.keys('email', 'to', 'cc');
+                    fn(err);
+                });
             }
         ], done);
     });
