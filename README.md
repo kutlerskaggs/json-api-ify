@@ -434,21 +434,31 @@ serializes `data` into a JSON API v1.0 compliant document
 
     // a map of resource links
     links: {
+        // asynchronous
         self(resource, options, cb) {
             // each key can be a value to set, or asynchronous function that
             // receives the processed resource, serialization options, and
             // a callback that should pass any error and the link value
             cb(null, link);
+        },
+        // synchronous
+        self(resource, options) {
+            return options.baseUrl + '/api/users/'  + resource.id;
         }
     },
 
     // a map of meta members
     meta: {
+        // asynchronous
         self(resource, options, cb) {
             // each key can be a value to set, or asynchronous function that
             // receives the processed resource, serialization options, and
             // a callback that should pass any error and the meta value
             cb(null, meta);
+        },
+        // synchronous
+        self(resource, options) {
+            return meta;
         }
     },
 
