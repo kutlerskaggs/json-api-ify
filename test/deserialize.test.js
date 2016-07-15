@@ -368,18 +368,21 @@ describe('deserialize', function() {
                         relationships: {
                             recipients: {
                                 data: [{
+                                    id: '1',
                                     type: 'to',
                                     attributes: {
                                         email: 'sam@example.com',
                                         first: 'Sam'
                                     }
                                 }, {
+                                    id: 2,
                                     type: 'to',
                                     attributes: {
                                         email: 'sue@example.com',
                                         first: 'Sue'
                                     }
                                 }, {
+                                    id: 1,
                                     type: 'cc',
                                     attributes: {
                                         email: 'william@example.com',
