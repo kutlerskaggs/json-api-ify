@@ -206,7 +206,7 @@ describe('basic tests', function() {
 
         it('should include 2 serialized users', function() {
             expect(payload.data).to.have.lengthOf(2);
-            expect(_.map(payload.data, 'id')).to.eql([1,2]);
+            expect(_.map(payload.data, 'id')).to.eql(['1','2']);
             expect(_.map(payload.data, 'type')).to.eql(['users', 'users']);
             payload.data.forEach(function(resource) {
                 expect(resource).to.be.an('object')
@@ -297,7 +297,7 @@ describe('basic tests', function() {
 
         it('should include 2 serialized users', function() {
             expect(payload.data).to.have.lengthOf(2);
-            expect(_.map(payload.data, 'id')).to.eql([1,2]);
+            expect(_.map(payload.data, 'id')).to.eql(['1','2']);
             expect(_.map(payload.data, 'type')).to.eql(['users', 'users']);
             payload.data.forEach(function(resource) {
                 expect(resource).to.be.an('object')
@@ -388,7 +388,7 @@ describe('basic tests', function() {
 
         it('should include 2 serialized users', function() {
             expect(payload.data).to.have.lengthOf(2);
-            expect(_.map(payload.data, 'id')).to.eql([1,2]);
+            expect(_.map(payload.data, 'id')).to.eql(['1','2']);
             expect(_.map(payload.data, 'type')).to.eql(['users', 'users']);
             payload.data.forEach(function(resource) {
                 expect(resource).to.be.an('object')
@@ -488,7 +488,7 @@ describe('basic tests', function() {
             expect(payload.data.relationships.users).to.have.all.keys('links', 'data', 'meta');
             expect(payload.data.relationships.users.data).to.be.an('array')
                 .with.lengthOf(2);
-            expect(_.map(payload.data.relationships.users.data, 'id')).to.eql([1, 2]);
+            expect(_.map(payload.data.relationships.users.data, 'id')).to.eql(['1', '2']);
         });
 
         it('each resource should include the correct meta', function() {
