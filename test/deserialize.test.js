@@ -54,8 +54,8 @@ describe('deserialize', function() {
                             expect(data).to.have.property('photos').that.is.an('object');
                             expect(data.photos).to.have.all.keys('title', 'src', 'photographer');
                             expect(data.photos.photographer).to.be.an('object').with.property('_id', '9');
-                            expect(data).to.have.property('people').that.is.an('array');
-                            expect(data.people[0]).to.have.property('_id', '9');
+                            expect(data).to.have.property('people').that.is.an('object');
+                            expect(data.people).to.have.property('_id', '9');
                             _fn(err);
                         });
                     }
@@ -173,8 +173,8 @@ describe('deserialize', function() {
                         };
                         serializer.deserialize(payload, function(err, data) {
                             expect(err).to.not.exist;
-                            expect(data).to.be.an('object');
-                            expect(data).to.have.property('people', '12');
+                            expect(data).to.be.an('object').with.property('people');
+                            expect(data.people).to.be.an('object').with.property('_id', '12');
                             _fn(err);
                         });
                     }
@@ -264,7 +264,7 @@ describe('deserialize', function() {
                             expect(err).to.not.exist;
                             expect(data).to.be.an('object');
                             expect(data).to.have.property('people').that.is.an('array');
-                            expect(data.people).to.eql(['2', '3']);
+                            expect(data.people).to.eql([{_id: '2'}, {_id: '3'}]);
                             _fn(err);
                         });
                     }
@@ -342,7 +342,7 @@ describe('deserialize', function() {
                                 }
                             }
                         };
-                        serializer.deserialize(badPayload, function(err) {
+                        serializer.deserialize(badPayload, function(err, data) {
                             expect(err).to.exist;
                             _fn(null, serializer);
                         });
@@ -368,18 +368,21 @@ describe('deserialize', function() {
                         relationships: {
                             recipients: {
                                 data: [{
+                                    id: '1',
                                     type: 'to',
                                     attributes: {
                                         email: 'sam@example.com',
                                         first: 'Sam'
                                     }
                                 }, {
+                                    id: 2,
                                     type: 'to',
                                     attributes: {
                                         email: 'sue@example.com',
                                         first: 'Sue'
                                     }
                                 }, {
+                                    id: 1,
                                     type: 'cc',
                                     attributes: {
                                         email: 'william@example.com',
@@ -393,6 +396,93 @@ describe('deserialize', function() {
                 serializer.deserialize(payload, function(err, data) {
                     expect(err).to.not.exist;
                     expect(data).to.have.all.keys('email', 'to', 'cc');
+                    fn(err);
+                });
+            }
+        ], done);
+    });
+
+    it('and nest included relationships', function(done) {
+        let serializer = new Serializer({
+            deserializeIncludedRelationships: true,
+            nestDeserializedRelationships: true
+        });
+        async.waterfall([
+            function(fn) {
+                let payload = {
+                    data: {
+                        type: 'email',
+                        attributes: {
+                            from_email: 'noreply@example.com',
+                            from_name: 'Joe Bob',
+                            subject: 'Test Email',
+                            template_name: 'basic'
+                        },
+                        relationships: {
+                            recipients: {
+                                data: [{
+                                    id: 1,
+                                    type: 'to'
+                                }, {
+                                    id: 2,
+                                    type: 'to'
+                                }, {
+                                    id: 1,
+                                    type: 'cc'
+                                }]
+                            }
+                        }
+                    },
+                    included: [{
+                        id: 1,
+                        type: 'to',
+                        attributes: {
+                            email: 'sam@example.com',
+                            first: 'Sam'
+                        }
+                    }, {
+                        id: 2,
+                        type: 'to',
+                        attributes: {
+                            email: 'sue@example.com',
+                            first: 'Sue'
+                        }
+                    }, {
+                        id: 1,
+                        type: 'cc',
+                        attributes: {
+                            email: 'william@example.com',
+                            first: 'Bill'
+                        }
+                    }]
+                };
+                serializer.deserialize(payload, function(err, data) {
+                    expect(err).to.not.exist;
+                    expect(data).to.have.all.keys('email', 'to', 'cc');
+                    expect(data.email).to.have.property('recipients').that.is.an('array').with.lengthOf(3);
+
+                    let recipients = [
+                        {
+                            id: 1,
+                            email: 'sam@example.com',
+                            first: 'Sam'
+                        },
+                        {
+                            id:2,
+                            email: 'sue@example.com',
+                            first: 'Sue'
+                        },
+                        {
+                            id: 1,
+                            email: 'william@example.com',
+                            first: 'Bill'
+                        }
+                    ];
+
+                    recipients.forEach(function(recipient) {
+                        expect(data.email.recipients).to.contain(recipient);
+                    });
+
                     fn(err);
                 });
             }
